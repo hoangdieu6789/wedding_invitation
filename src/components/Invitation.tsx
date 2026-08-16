@@ -246,7 +246,7 @@ export default function Invitation({ side }: { side: Side }) {
 
         <Reveal><Countdown targetIso={content.weddingDateIso} /></Reveal>
 
-        <Reveal><RsvpCard sent={sent} onSubmit={submit} /></Reveal>
+        <Reveal><RsvpCard sent={sent} side={side} onSubmit={submit} /></Reveal>
 
         <Reveal><WishesBook wishes={wishes} /></Reveal>
 

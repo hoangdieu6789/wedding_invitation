@@ -2,15 +2,19 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
-import { Wish } from "@/lib/types";
+import { Side, Wish } from "@/lib/types";
 
 interface RsvpCardProps {
   sent: boolean;
+  side: Side;
   onSubmit: (wish: Wish | null) => void;
 }
 
-export default function RsvpCard({ sent, onSubmit }: RsvpCardProps) {
+const MAX_COMPANIONS = 10;
+
+export default function RsvpCard({ sent, side, onSubmit }: RsvpCardProps) {
   const [attend, setAttend] = useState(true);
+  const [companions, setCompanions] = useState(0);
   const nameRef = useRef<HTMLInputElement>(null);
   const msgRef = useRef<HTMLTextAreaElement>(null);
 
@@ -18,6 +22,14 @@ export default function RsvpCard({ sent, onSubmit }: RsvpCardProps) {
     const name = nameRef.current?.value.trim() || "Quý khách";
     const text = msgRef.current?.value.trim() || "";
     onSubmit(text ? { name, text } : null);
+
+    fetch("/api/rsvp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, attend, companions: attend ? companions : 0, text, side }),
+    }).catch((error) => {
+      console.error("RSVP: failed to sync to sheet", error);
+    });
   };
 
   const toggleBtnStyle = (isSelected: boolean): React.CSSProperties => ({
@@ -85,6 +97,78 @@ export default function RsvpCard({ sent, onSubmit }: RsvpCardProps) {
                 Xin phép vắng mặt
               </motion.div>
             </div>
+            {attend && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  border: "1px solid rgba(126,18,32,.25)",
+                  background: "#FFFDF7",
+                  padding: "10px 14px",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-be-vietnam), sans-serif",
+                    fontSize: 14,
+                    color: "#4A3B35",
+                  }}
+                >
+                  Tệp đính kèm
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setCompanions((c) => Math.max(0, c - 1))}
+                    style={{
+                      cursor: "pointer",
+                      width: 28,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "1px solid rgba(126,18,32,.35)",
+                      color: "#7E1220",
+                      fontSize: 16,
+                      userSelect: "none",
+                    }}
+                  >
+                    −
+                  </motion.div>
+                  <span
+                    style={{
+                      minWidth: 16,
+                      textAlign: "center",
+                      fontFamily: "var(--font-be-vietnam), sans-serif",
+                      fontSize: 14,
+                      color: "#4A3B35",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {companions}
+                  </span>
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setCompanions((c) => Math.min(MAX_COMPANIONS, c + 1))}
+                    style={{
+                      cursor: "pointer",
+                      width: 28,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "1px solid rgba(126,18,32,.35)",
+                      color: "#7E1220",
+                      fontSize: 16,
+                      userSelect: "none",
+                    }}
+                  >
+                    +
+                  </motion.div>
+                </div>
+              </div>
+            )}
             <textarea
               ref={msgRef}
               rows={3}
