@@ -32,6 +32,8 @@ export interface SideContent {
   tiecMung: VenueBlock;
   parents: { left: PersonBlock; right: PersonBlock };
   bankOwnerName: string;
+  bankName: string;
+  bankAccountNumber: string;
   weddingDateIso: string;
   albumImages: string[];
 }

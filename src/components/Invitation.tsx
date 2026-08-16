@@ -299,7 +299,7 @@ export default function Invitation({ side }: { side: Side }) {
           <div style={{ marginTop: 16, fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 13, color: "#6f5b4d", lineHeight: 1.9 }}>
             {content.bankOwnerName}
             <br />
-            Số tài khoản &middot; Ngân hàng
+            {content.bankAccountNumber} &middot; {content.bankName}
           </div>
         </div>
         </Reveal>
