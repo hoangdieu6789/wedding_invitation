@@ -3,8 +3,8 @@ import Invitation from "@/components/Invitation";
 export default async function NhaTraiPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ten?: string }>;
+  searchParams: Promise<{ guestName?: string }>;
 }) {
-  const { ten } = await searchParams;
-  return <Invitation side="trai" guestName={ten} />;
+  const { guestName } = await searchParams;
+  return <Invitation side="trai" guestName={guestName} />;
 }
