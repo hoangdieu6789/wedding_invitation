@@ -64,10 +64,11 @@ export async function POST(request: NextRequest) {
   const sheetTab = SIDE_TAB[body.side];
 
   try {
-    // Sheet columns (row 6 header): B=STT C=Tên quý khách D=Nhóm quan hệ
-    // E=Xác nhận tham gia F=Số người đi cùng G=Lời chúc H=Ghi chú
-    // Names start at row 7 (row 6 is the header). If the submitted name
-    // already exists, update that row in place instead of appending a duplicate.
+    // Sheet columns (row 6 header): B=STT (filled by hand) C=Tên quý khách
+    // D=Nhóm quan hệ (filled by hand) E=Xác nhận tham gia F=Số người đi cùng
+    // G=Lời chúc H=Link (formula generated from C, must not be overwritten).
+    // Names start at row 7 (row 6 is the header). We only ever write C and
+    // E:G — never B, D, or H — so the couple's own data/formulas survive.
     const existing = await client.sheets.spreadsheets.values.get({
       spreadsheetId: client.spreadsheetId,
       range: `${sheetTab}!C7:C`,
@@ -75,25 +76,23 @@ export async function POST(request: NextRequest) {
     const names = (existing.data.values || []).map((row) => (row[0] || "").trim());
     const rowIndex = names.indexOf(body.name.trim());
 
-    if (rowIndex !== -1) {
-      const row = rowIndex + 7;
+    const row = rowIndex !== -1 ? rowIndex + 7 : 7 + names.length;
+
+    if (rowIndex === -1) {
       await client.sheets.spreadsheets.values.update({
         spreadsheetId: client.spreadsheetId,
-        range: `${sheetTab}!E${row}:G${row}`,
+        range: `${sheetTab}!C${row}`,
         valueInputOption: "USER_ENTERED",
-        requestBody: {
-          values: [[body.attend ? "Có" : "Không", body.companions, body.text]],
-        },
+        requestBody: { values: [[body.name]] },
       });
-      return NextResponse.json({ ok: true });
     }
 
-    await client.sheets.spreadsheets.values.append({
+    await client.sheets.spreadsheets.values.update({
       spreadsheetId: client.spreadsheetId,
-      range: `${sheetTab}!B:H`,
+      range: `${sheetTab}!E${row}:G${row}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
-        values: [["", body.name, "", body.attend ? "Có" : "Không", body.companions, body.text, ""]],
+        values: [[body.attend ? "Có" : "Không", body.companions, body.text]],
       },
     });
 
