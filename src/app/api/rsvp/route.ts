@@ -29,9 +29,19 @@ function isValidPayload(value: unknown): value is RsvpPayload {
   );
 }
 
+function normalizePrivateKey(raw: string): string {
+  let key = raw.trim();
+  // Strip surrounding quotes some env-var UIs preserve literally when pasted.
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  return key.replace(/\\n/g, "\n");
+}
+
 function getSheetsClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const privateKeyRaw = process.env.GOOGLE_PRIVATE_KEY;
+  const privateKey = privateKeyRaw ? normalizePrivateKey(privateKeyRaw) : undefined;
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
   if (!email || !privateKey || !spreadsheetId) return null;
