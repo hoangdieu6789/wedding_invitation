@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
+import { normalizePrivateKey } from "@/lib/google-auth";
 
 export const runtime = "nodejs";
 
@@ -27,15 +28,6 @@ function isValidPayload(value: unknown): value is RsvpPayload {
     typeof v.text === "string" &&
     (v.side === "gai" || v.side === "trai")
   );
-}
-
-function normalizePrivateKey(raw: string): string {
-  let key = raw.trim();
-  // Strip surrounding quotes some env-var UIs preserve literally when pasted.
-  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
-    key = key.slice(1, -1);
-  }
-  return key.replace(/\\n/g, "\n");
 }
 
 function getSheetsClient() {

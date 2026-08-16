@@ -29,7 +29,7 @@ const leThanhHon = {
   ctaLabel: "Xem chỉ đường",
 };
 
-const albumImages = ["/img/couple-1.jpg", "/img/couple-2.jpg"];
+const albumImages = ["/img/couple-1.jpg"];
 
 export const SIDES: Record<Side, SideContent> = {
   gai: {

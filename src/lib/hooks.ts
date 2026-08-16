@@ -93,6 +93,27 @@ export function useWishes(storagePrefix: string, side: Side) {
   return { wishes, sent, submit, hydrated };
 }
 
+/** Album photos loaded from the shared Google Drive folder; falls back to
+ * `fallback` while loading or if the folder isn't configured / unreachable. */
+export function useAlbumPhotos(fallback: string[]) {
+  const [photos, setPhotos] = useState<string[]>(fallback);
+
+  useEffect(() => {
+    fetch("/api/album")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && data.photos.length > 0) {
+          setPhotos(data.photos.map((p: { src: string }) => p.src));
+        }
+      })
+      .catch((error) => {
+        console.error("Album: failed to load photos", error);
+      });
+  }, []);
+
+  return photos;
+}
+
 /** Client-only, per-slot image picker persistence (data URL in localStorage). */
 export function useImageSlot(id: string) {
   const key = `imgslot:${id}`;

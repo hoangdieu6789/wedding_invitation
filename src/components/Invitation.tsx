@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SIDES } from "@/lib/content";
-import { useWishes } from "@/lib/hooks";
+import { useAlbumPhotos, useWishes } from "@/lib/hooks";
 import { Side, VenueBlock } from "@/lib/types";
 import Album from "./Album";
 import Countdown from "./Countdown";
@@ -114,6 +114,7 @@ function Divider() {
 export default function Invitation({ side }: { side: Side }) {
   const content = SIDES[side];
   const { wishes, sent, submit } = useWishes(content.storagePrefix, side);
+  const albumPhotos = useAlbumPhotos(content.albumImages);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroImage = content.albumImages[0];
 
@@ -234,11 +235,11 @@ export default function Invitation({ side }: { side: Side }) {
         </Reveal>
 
         <Reveal>
-          <Album photos={content.albumImages} storagePrefix={content.storagePrefix} onOpenPhoto={setLightboxIndex} />
+          <Album photos={albumPhotos} storagePrefix={content.storagePrefix} onOpenPhoto={setLightboxIndex} />
         </Reveal>
 
         <Lightbox
-          photos={content.albumImages}
+          photos={albumPhotos}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onIndexChange={setLightboxIndex}
