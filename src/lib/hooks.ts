@@ -113,32 +113,3 @@ export function useAlbumPhotos(fallback: string[]) {
 
   return photos;
 }
-
-/** Client-only, per-slot image picker persistence (data URL in localStorage). */
-export function useImageSlot(id: string) {
-  const key = `imgslot:${id}`;
-  const [src, setSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) setSrc(raw);
-    } catch {
-      // ignore
-    }
-  }, [key]);
-
-  const setImage = useCallback(
-    (dataUrl: string) => {
-      setSrc(dataUrl);
-      try {
-        localStorage.setItem(key, dataUrl);
-      } catch {
-        // ignore
-      }
-    },
-    [key],
-  );
-
-  return { src, setImage };
-}

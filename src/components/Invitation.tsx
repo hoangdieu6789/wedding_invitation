@@ -7,12 +7,47 @@ import { Side, VenueBlock } from "@/lib/types";
 import Album from "./Album";
 import Countdown from "./Countdown";
 import EnvelopeCover from "./EnvelopeCover";
-import ImageSlot from "./ImageSlot";
 import Lightbox from "./Lightbox";
 import MusicButton from "./MusicButton";
 import Reveal from "./Reveal";
 import RsvpCard from "./RsvpCard";
 import WishesBook from "./WishesBook";
+
+function QrImage({ src, size }: { src: string; size: number }) {
+  const [broken, setBroken] = useState(false);
+
+  if (broken) {
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          color: "#a89684",
+          fontFamily: "var(--font-be-vietnam), sans-serif",
+          fontSize: 12,
+          padding: 12,
+          background: "#F3E8D5",
+        }}
+      >
+        Chưa có ảnh QR
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="QR chuyển khoản mừng cưới"
+      onError={() => setBroken(true)}
+      style={{ width: size, height: size, objectFit: "cover" }}
+    />
+  );
+}
 
 function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
   return (
@@ -235,7 +270,7 @@ export default function Invitation({ side }: { side: Side }) {
         </Reveal>
 
         <Reveal>
-          <Album photos={albumPhotos} storagePrefix={content.storagePrefix} onOpenPhoto={setLightboxIndex} />
+          <Album photos={albumPhotos} onOpenPhoto={setLightboxIndex} />
         </Reveal>
 
         <Lightbox
@@ -259,7 +294,7 @@ export default function Invitation({ side }: { side: Side }) {
             Nếu không thể tới chung vui, Quý khách có thể gửi lời chúc qua đây
           </div>
           <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
-            <ImageSlot id={`${content.storagePrefix}-qr`} placeholder="Kéo ảnh QR ngân hàng vào đây" style={{ width: 190, height: 190 }} />
+            <QrImage src={`/img/qr-${content.storagePrefix}.png`} size={190} />
           </div>
           <div style={{ marginTop: 16, fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 13, color: "#6f5b4d", lineHeight: 1.9 }}>
             {content.bankOwnerName}

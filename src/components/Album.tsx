@@ -2,21 +2,17 @@
 
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
-import ImageSlot from "./ImageSlot";
 
 interface AlbumProps {
   photos: string[];
-  storagePrefix: string;
   onOpenPhoto: (index: number) => void;
 }
 
-const SLIDE_COUNT_PLACEHOLDERS = 2;
-
-export default function Album({ photos, storagePrefix, onOpenPhoto }: AlbumProps) {
+export default function Album({ photos, onOpenPhoto }: AlbumProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [active, setActive] = useState(0);
-  const total = photos.length + SLIDE_COUNT_PLACEHOLDERS;
+  const total = photos.length;
 
   const slideTo = (n: number) => {
     const el = trackRef.current;
@@ -117,20 +113,6 @@ export default function Album({ photos, storagePrefix, onOpenPhoto }: AlbumProps
                 src={src}
                 alt="Ảnh cưới"
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 16%" }}
-              />
-            </motion.div>
-          ))}
-          {Array.from({ length: SLIDE_COUNT_PLACEHOLDERS }).map((_, i) => (
-            <motion.div
-              key={`slot-${i}`}
-              style={cardStyle(photos.length + i)}
-              animate={cardAnimate(photos.length + i)}
-              transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
-            >
-              <ImageSlot
-                id={`${storagePrefix}-album-${i + 1}`}
-                placeholder="Kéo ảnh cưới vào đây"
-                style={{ width: "100%", height: "100%" }}
               />
             </motion.div>
           ))}
