@@ -7,12 +7,13 @@ import { Side, Wish } from "@/lib/types";
 interface RsvpCardProps {
   sent: boolean;
   side: Side;
+  guestName?: string;
   onSubmit: (wish: Wish | null) => void;
 }
 
 const MAX_COMPANIONS = 10;
 
-export default function RsvpCard({ sent, side, onSubmit }: RsvpCardProps) {
+export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardProps) {
   const [attend, setAttend] = useState(true);
   const [companions, setCompanions] = useState(0);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -77,6 +78,7 @@ export default function RsvpCard({ sent, side, onSubmit }: RsvpCardProps) {
           >
             <input
               ref={nameRef}
+              defaultValue={guestName}
               placeholder="Tên của Quý khách"
               style={{
                 fontFamily: "var(--font-be-vietnam), sans-serif",

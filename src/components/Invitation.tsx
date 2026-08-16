@@ -146,7 +146,7 @@ function Divider() {
   );
 }
 
-export default function Invitation({ side }: { side: Side }) {
+export default function Invitation({ side, guestName }: { side: Side; guestName?: string }) {
   const content = SIDES[side];
   const { wishes, sent, submit } = useWishes(content.storagePrefix, side);
   const albumPhotos = useAlbumPhotos(content.albumImages);
@@ -220,6 +220,11 @@ export default function Invitation({ side }: { side: Side }) {
               <span>Trân trọng kính mời</span>
               <span style={{ width: 20, height: 1, background: "rgba(166,48,60,.45)" }} />
             </div>
+            {guestName && (
+              <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 26, color: "#A6303C", marginTop: 12 }}>
+                {guestName}
+              </div>
+            )}
             <div style={{ fontFamily: "var(--font-cormorant), serif", fontStyle: "italic", fontSize: 19, color: "#8a7565", marginTop: 14 }}>
               tới dự lễ thành hôn của
             </div>
@@ -282,7 +287,7 @@ export default function Invitation({ side }: { side: Side }) {
 
         <Reveal><Countdown targetIso={content.weddingDateIso} /></Reveal>
 
-        <Reveal><RsvpCard sent={sent} side={side} onSubmit={submit} /></Reveal>
+        <Reveal><RsvpCard sent={sent} side={side} guestName={guestName} onSubmit={submit} /></Reveal>
 
         <Reveal><WishesBook wishes={wishes} /></Reveal>
 

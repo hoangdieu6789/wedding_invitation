@@ -1,5 +1,10 @@
 import Invitation from "@/components/Invitation";
 
-export default function NhaGaiPage() {
-  return <Invitation side="gai" />;
+export default async function NhaGaiPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ten?: string }>;
+}) {
+  const { ten } = await searchParams;
+  return <Invitation side="gai" guestName={ten} />;
 }
