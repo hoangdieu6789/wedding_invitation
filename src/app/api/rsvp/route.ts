@@ -66,27 +66,26 @@ export async function POST(request: NextRequest) {
   try {
     // Sheet columns (row 6 header): B=STT C=Tên quý khách D=Nhóm quan hệ
     // E=Xác nhận tham gia F=Số người đi cùng G=Lời chúc H=Ghi chú
-    // Names start at row 7 (row 6 is the header).
-    if (body.locked) {
-      const existing = await client.sheets.spreadsheets.values.get({
-        spreadsheetId: client.spreadsheetId,
-        range: `${sheetTab}!C7:C`,
-      });
-      const names = (existing.data.values || []).map((row) => (row[0] || "").trim());
-      const rowIndex = names.indexOf(body.name.trim());
+    // Names start at row 7 (row 6 is the header). If the submitted name
+    // already exists, update that row in place instead of appending a duplicate.
+    const existing = await client.sheets.spreadsheets.values.get({
+      spreadsheetId: client.spreadsheetId,
+      range: `${sheetTab}!C7:C`,
+    });
+    const names = (existing.data.values || []).map((row) => (row[0] || "").trim());
+    const rowIndex = names.indexOf(body.name.trim());
 
-      if (rowIndex !== -1) {
-        const row = rowIndex + 7;
-        await client.sheets.spreadsheets.values.update({
-          spreadsheetId: client.spreadsheetId,
-          range: `${sheetTab}!E${row}:G${row}`,
-          valueInputOption: "USER_ENTERED",
-          requestBody: {
-            values: [[body.attend ? "Có" : "Không", body.companions, body.text]],
-          },
-        });
-        return NextResponse.json({ ok: true });
-      }
+    if (rowIndex !== -1) {
+      const row = rowIndex + 7;
+      await client.sheets.spreadsheets.values.update({
+        spreadsheetId: client.spreadsheetId,
+        range: `${sheetTab}!E${row}:G${row}`,
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+          values: [[body.attend ? "Có" : "Không", body.companions, body.text]],
+        },
+      });
+      return NextResponse.json({ ok: true });
     }
 
     await client.sheets.spreadsheets.values.append({
