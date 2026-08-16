@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Wish } from "./types";
+import { Side, Wish } from "./types";
 
 export interface CountdownValue {
   days: string;
@@ -48,9 +48,9 @@ export function useCountdown(targetIso: string): CountdownValue {
   return value;
 }
 
-/** Wishes + RSVP-sent flag, persisted to localStorage under a per-side prefix. */
-export function useWishes(storagePrefix: string) {
-  const wishesKey = `${storagePrefix}-wishes-v2`;
+/** Wishes + RSVP-sent flag. Wishes load from the shared Google Sheet (all guests);
+ * the sent flag is local per-device, persisted to localStorage under a per-side prefix. */
+export function useWishes(storagePrefix: string, side: Side) {
   const sentKey = `${storagePrefix}-sent-v2`;
 
   const [wishes, setWishes] = useState<Wish[]>([]);
@@ -59,26 +59,27 @@ export function useWishes(storagePrefix: string) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(wishesKey);
-      if (raw) setWishes(JSON.parse(raw));
       if (localStorage.getItem(sentKey)) setSent(true);
     } catch {
       // ignore malformed/unavailable storage
     }
     setHydrated(true);
-  }, [wishesKey, sentKey]);
+  }, [sentKey]);
+
+  useEffect(() => {
+    fetch(`/api/rsvp?side=${side}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) setWishes(data.wishes);
+      })
+      .catch((error) => {
+        console.error("RSVP: failed to load wishes", error);
+      });
+  }, [side]);
 
   const submit = useCallback(
     (wish: Wish | null) => {
-      setWishes((prev) => {
-        const next = wish ? [wish, ...prev] : prev;
-        try {
-          localStorage.setItem(wishesKey, JSON.stringify(next));
-        } catch {
-          // ignore
-        }
-        return next;
-      });
+      if (wish) setWishes((prev) => [wish, ...prev]);
       setSent(true);
       try {
         localStorage.setItem(sentKey, "1");
@@ -86,7 +87,7 @@ export function useWishes(storagePrefix: string) {
         // ignore
       }
     },
-    [wishesKey, sentKey],
+    [sentKey],
   );
 
   return { wishes, sent, submit, hydrated };

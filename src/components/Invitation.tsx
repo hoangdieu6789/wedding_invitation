@@ -113,7 +113,7 @@ function Divider() {
 
 export default function Invitation({ side }: { side: Side }) {
   const content = SIDES[side];
-  const { wishes, sent, submit } = useWishes(content.storagePrefix);
+  const { wishes, sent, submit } = useWishes(content.storagePrefix, side);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroImage = content.albumImages[0];
 

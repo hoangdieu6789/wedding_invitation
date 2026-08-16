@@ -29,6 +29,21 @@ function isValidPayload(value: unknown): value is RsvpPayload {
   );
 }
 
+function getSheetsClient() {
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!email || !privateKey || !spreadsheetId) return null;
+
+  const auth = new google.auth.JWT({
+    email,
+    key: privateKey,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+  return { sheets: google.sheets({ version: "v4", auth }), spreadsheetId };
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
 
@@ -36,29 +51,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "invalid payload" }, { status: 400 });
   }
 
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-  const sheetTab = SIDE_TAB[body.side];
-
-  if (!email || !privateKey || !spreadsheetId) {
+  const client = getSheetsClient();
+  if (!client) {
     console.error("RSVP: missing Google Sheets env vars");
     return NextResponse.json({ ok: false, error: "server not configured" }, { status: 500 });
   }
 
   try {
-    const auth = new google.auth.JWT({
-      email,
-      key: privateKey,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-    const sheets = google.sheets({ version: "v4", auth });
-
     // Sheet columns (row 6 header): B=STT C=Tên quý khách D=Nhóm quan hệ
     // E=Xác nhận tham gia F=Số người đi cùng G=Lời chúc H=Ghi chú
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: `${sheetTab}!B:H`,
+    await client.sheets.spreadsheets.values.append({
+      spreadsheetId: client.spreadsheetId,
+      range: `${SIDE_TAB[body.side]}!B:H`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [["", body.name, "", body.attend ? "Có" : "Không", body.companions, body.text, ""]],
@@ -69,5 +73,36 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("RSVP: failed to append row", error);
     return NextResponse.json({ ok: false, error: "failed to write to sheet" }, { status: 502 });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const side = request.nextUrl.searchParams.get("side");
+  if (side !== "gai" && side !== "trai") {
+    return NextResponse.json({ ok: false, error: "invalid side" }, { status: 400 });
+  }
+
+  const client = getSheetsClient();
+  if (!client) {
+    console.error("RSVP: missing Google Sheets env vars");
+    return NextResponse.json({ ok: false, error: "server not configured" }, { status: 500 });
+  }
+
+  try {
+    // C=Tên quý khách ... G=Lời chúc (rows start at 7, row 6 is the header)
+    const res = await client.sheets.spreadsheets.values.get({
+      spreadsheetId: client.spreadsheetId,
+      range: `${SIDE_TAB[side]}!C7:G`,
+    });
+
+    const wishes = (res.data.values || [])
+      .map((row) => ({ name: (row[0] || "").trim(), text: (row[4] || "").trim() }))
+      .filter((w) => w.text)
+      .reverse();
+
+    return NextResponse.json({ ok: true, wishes });
+  } catch (error) {
+    console.error("RSVP: failed to read sheet", error);
+    return NextResponse.json({ ok: false, error: "failed to read sheet" }, { status: 502 });
   }
 }
