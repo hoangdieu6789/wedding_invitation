@@ -27,7 +27,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
     fetch("/api/rsvp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, attend, companions: attend ? companions : 0, text, side }),
+      body: JSON.stringify({ name, attend, companions: attend ? companions : 0, text, side, locked: !!guestName }),
     }).catch((error) => {
       console.error("RSVP: failed to sync to sheet", error);
     });
@@ -79,16 +79,18 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
             <input
               ref={nameRef}
               defaultValue={guestName}
+              readOnly={!!guestName}
               placeholder="Tên của Quý khách"
               style={{
                 fontFamily: "var(--font-be-vietnam), sans-serif",
                 fontSize: 14,
                 color: "#4A3B35",
-                background: "#FFFDF7",
+                background: guestName ? "#F3E8D5" : "#FFFDF7",
                 border: "1px solid rgba(126,18,32,.25)",
                 padding: "13px 14px",
                 outline: "none",
                 minHeight: 46,
+                cursor: guestName ? "default" : "text",
               }}
             />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

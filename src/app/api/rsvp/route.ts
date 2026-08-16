@@ -10,6 +10,7 @@ interface RsvpPayload {
   companions: number;
   text: string;
   side: "gai" | "trai";
+  locked: boolean;
 }
 
 const SIDE_TAB: Record<RsvpPayload["side"], string> = {
@@ -26,7 +27,8 @@ function isValidPayload(value: unknown): value is RsvpPayload {
     typeof v.companions === "number" &&
     Number.isFinite(v.companions) &&
     typeof v.text === "string" &&
-    (v.side === "gai" || v.side === "trai")
+    (v.side === "gai" || v.side === "trai") &&
+    typeof v.locked === "boolean"
   );
 }
 
@@ -59,12 +61,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "server not configured" }, { status: 500 });
   }
 
+  const sheetTab = SIDE_TAB[body.side];
+
   try {
     // Sheet columns (row 6 header): B=STT C=Tên quý khách D=Nhóm quan hệ
     // E=Xác nhận tham gia F=Số người đi cùng G=Lời chúc H=Ghi chú
+    // Names start at row 7 (row 6 is the header).
+    if (body.locked) {
+      const existing = await client.sheets.spreadsheets.values.get({
+        spreadsheetId: client.spreadsheetId,
+        range: `${sheetTab}!C7:C`,
+      });
+      const names = (existing.data.values || []).map((row) => (row[0] || "").trim());
+      const rowIndex = names.indexOf(body.name.trim());
+
+      if (rowIndex !== -1) {
+        const row = rowIndex + 7;
+        await client.sheets.spreadsheets.values.update({
+          spreadsheetId: client.spreadsheetId,
+          range: `${sheetTab}!E${row}:G${row}`,
+          valueInputOption: "USER_ENTERED",
+          requestBody: {
+            values: [[body.attend ? "Có" : "Không", body.companions, body.text]],
+          },
+        });
+        return NextResponse.json({ ok: true });
+      }
+    }
+
     await client.sheets.spreadsheets.values.append({
       spreadsheetId: client.spreadsheetId,
-      range: `${SIDE_TAB[body.side]}!B:H`,
+      range: `${sheetTab}!B:H`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [["", body.name, "", body.attend ? "Có" : "Không", body.companions, body.text, ""]],
@@ -73,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("RSVP: failed to append row", error);
+    console.error("RSVP: failed to write row", error);
     return NextResponse.json({ ok: false, error: "failed to write to sheet" }, { status: 502 });
   }
 }
