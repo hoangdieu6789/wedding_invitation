@@ -9,9 +9,10 @@ interface EnvelopeCoverProps {
   heroImage: string;
   monogram: string;
   names: [string, string];
+  guestName?: string;
 }
 
-export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCoverProps) {
+export default function EnvelopeCover({ heroImage, monogram, names, guestName }: EnvelopeCoverProps) {
   const [phase, setPhase] = useState<Phase>("closed");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -19,10 +20,11 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
 
   const open = () => {
     if (phase !== "closed") return;
+    window.scrollTo(0, 0);
     setPhase("opening");
-    timers.current.push(setTimeout(() => setPhase("rising"), 1250));
-    timers.current.push(setTimeout(() => setPhase("expanding"), 3450));
-    timers.current.push(setTimeout(() => setPhase("done"), 5300));
+    timers.current.push(setTimeout(() => setPhase("rising"), 900));
+    timers.current.push(setTimeout(() => setPhase("expanding"), 2300));
+    timers.current.push(setTimeout(() => setPhase("done"), 3600));
   };
 
   if (phase === "done") return null;
@@ -35,12 +37,12 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
     <>
       <motion.div
         animate={{ opacity: expanding ? 0 : 1 }}
-        transition={{ duration: 1.1, ease: "easeInOut" }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         style={{ position: "fixed", inset: 0, zIndex: 50, background: "#3f3b38" }}
       />
       <motion.div
         animate={{ opacity: expanding ? 0 : 1 }}
-        transition={{ duration: 1.1, ease: "easeInOut" }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: "fixed",
           inset: 0,
@@ -81,19 +83,32 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
               }}
             />
 
-            {/* card (photo + names) */}
+            {/* card slot: clipped to the front flap's triangular gap, opening
+                upward without bound so the card can bleed past the envelope
+                once risen — this is what sells "pulled out from inside" */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 4,
+                clipPath: "polygon(-250% -300%, 50% 61.2%, 350% -300%)",
+                pointerEvents: "none",
+              }}
+            >
             <motion.div
               animate={{
-                y: expanding ? "-30%" : rising ? "-38%" : "24%",
-                rotateX: rising ? 0 : 7,
-                scale: expanding ? 2.15 : rising ? 1 : 0.985,
-                opacity: expanding ? 0 : 1,
+                y: expanding ? "-30%" : rising ? "-38%" : "55%",
+                rotateX: rising ? 0 : 9,
+                scale: expanding ? 2.15 : rising ? 1 : 0.94,
+                opacity: expanding ? 0 : rising ? 1 : 0,
                 boxShadow: rising ? "0 26px 60px rgba(0,0,0,.5)" : "0 6px 14px rgba(0,0,0,.3)",
               }}
               transition={{
-                default: { duration: 1.9, ease: [0.18, 0.88, 0.16, 1.01] },
-                opacity: { duration: 1, ease: "easeOut", delay: 0.45 },
-                boxShadow: { duration: 1.6, ease: "easeInOut" },
+                default: { duration: 1.4, ease: [0.16, 1, 0.3, 1] },
+                opacity: expanding
+                  ? { duration: 0.9, ease: "easeOut", delay: 0.3 }
+                  : { duration: 0.8, ease: "easeOut" },
+                boxShadow: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
               }}
               style={{
                 position: "absolute",
@@ -101,7 +116,7 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 right: "12%",
                 bottom: "7%",
                 height: "128%",
-                zIndex: rising ? 5 : 1,
+                pointerEvents: "auto",
                 visibility: rising ? "visible" : "hidden",
                 background: "#FCF6EA",
                 overflow: "hidden",
@@ -164,11 +179,12 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 </div>
               </div>
             </motion.div>
+            </div>
 
             {/* front triangle flap (bottom, stays put) */}
             <motion.div
               animate={{ y: rising ? "1.2%" : "0%", scaleY: rising ? 1.012 : 1 }}
-              transition={{ duration: 1.3, ease: [0.3, 0, 0.2, 1] }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -177,12 +193,44 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 background: "linear-gradient(170deg,#FFFCF4 0%,#F7EEDF 58%,#F1E5D1 100%)",
                 boxShadow: "0 -4px 12px rgba(90,60,30,.10), inset 0 3px 6px rgba(90,60,30,.18)",
               }}
-            />
+            >
+              {/* fold crease lines toward the flap's peak */}
+              <motion.div
+                animate={{ opacity: started ? 0 : 1 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: "66%",
+                  height: 3,
+                  transformOrigin: "0 0",
+                  transform: "rotate(40.8deg)",
+                  background: "linear-gradient(180deg, rgba(80,52,26,.32) 0%, rgba(255,255,255,.45) 55%, rgba(80,52,26,0) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+              <motion.div
+                animate={{ opacity: started ? 0 : 1 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  width: "66%",
+                  height: 3,
+                  transformOrigin: "100% 0",
+                  transform: "rotate(-40.8deg)",
+                  background: "linear-gradient(180deg, rgba(80,52,26,.32) 0%, rgba(255,255,255,.45) 55%, rgba(80,52,26,0) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+            </motion.div>
 
             {/* top flap (opens) */}
             <motion.div
               animate={{ rotateX: started ? -174 : 0 }}
-              transition={{ duration: 1.15, ease: [0.34, 1.16, 0.5, 1], delay: 0.25 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
               style={{
                 position: "absolute",
                 left: 0,
@@ -196,6 +244,37 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 filter: "drop-shadow(0 1px 0 rgba(126,18,32,.16))",
               }}
             >
+              {/* fold crease lines toward the flap's peak */}
+              <motion.div
+                animate={{ opacity: started ? 0 : 1 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: "67%",
+                  height: 3,
+                  transformOrigin: "0 0",
+                  transform: "rotate(41.4deg)",
+                  background: "linear-gradient(180deg, rgba(80,52,26,.32) 0%, rgba(255,255,255,.45) 55%, rgba(80,52,26,0) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+              <motion.div
+                animate={{ opacity: started ? 0 : 1 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  width: "67%",
+                  height: 3,
+                  transformOrigin: "100% 0",
+                  transform: "rotate(-41.4deg)",
+                  background: "linear-gradient(180deg, rgba(80,52,26,.32) 0%, rgba(255,255,255,.45) 55%, rgba(80,52,26,0) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
               <motion.div
                 animate={{ opacity: started ? 0 : 1 }}
                 transition={{ duration: 0.35 }}
@@ -236,7 +315,7 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
             </motion.div>
 
             {/* wax seal */}
-            <div style={{ position: "absolute", left: "50%", top: "62%", zIndex: 4, transform: "translate(-50%,-50%)", width: 46, height: 46 }}>
+            <div style={{ position: "absolute", left: "50%", top: "59%", zIndex: 4, transform: "translate(-50%,-50%)", width: 38, height: 38 }}>
               <motion.div
                 animate={
                   started
@@ -245,7 +324,7 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 }
                 transition={
                   started
-                    ? { duration: 1, ease: [0.3, 0.8, 0.2, 1] }
+                    ? { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
                     : { duration: 2.8, repeat: Infinity, ease: "easeInOut" }
                 }
                 style={{ position: "absolute", inset: 0 }}
@@ -275,17 +354,29 @@ export default function EnvelopeCover({ heroImage, monogram, names }: EnvelopeCo
                 position: "absolute",
                 left: "16%",
                 right: "16%",
-                bottom: "9%",
+                bottom: "7%",
                 zIndex: 3,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 10,
               }}
             >
-              <div style={{ fontFamily: "var(--font-cormorant), serif", fontStyle: "italic", fontSize: 15, color: "#8a7565" }}>
+              <div
+                style={{
+                  fontFamily: "var(--font-cormorant), serif",
+                  fontStyle: "italic",
+                  fontSize: 15,
+                  color: "#8a7565",
+                  marginBottom: guestName ? 4 : 14,
+                }}
+              >
                 Trân trọng kính mời
               </div>
+              {guestName && (
+                <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 20, color: "#A6303C", marginBottom: 2 }}>
+                  {guestName}
+                </div>
+              )}
               <div style={{ width: "100%", borderBottom: "1px dotted rgba(126,18,32,.3)" }} />
             </div>
           </div>

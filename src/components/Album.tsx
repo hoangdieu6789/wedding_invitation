@@ -1,63 +1,62 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface AlbumProps {
   photos: string[];
   onOpenPhoto: (index: number) => void;
+  autoplayPaused?: boolean;
 }
 
-export default function Album({ photos, onOpenPhoto }: AlbumProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+const GAP = 16;
+const CARD_RATIO = 0.74;
+const DOTS_MAX = 10;
+const AUTOPLAY_MS = 4500;
+
+export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: AlbumProps) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [cardWidth, setCardWidth] = useState(0);
   const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState(false);
   const total = photos.length;
 
-  const slideTo = (n: number) => {
-    const el = trackRef.current;
+  useEffect(() => {
+    const el = viewportRef.current;
     if (!el) return;
-    const card = el.children[n] as HTMLElement | undefined;
-    if (card) {
-      el.scrollTo({
-        left: card.offsetLeft - (el.clientWidth - card.clientWidth) / 2,
-        behavior: "smooth",
-      });
-    }
-    setActive(n);
-  };
+    const update = () => setCardWidth(el.clientWidth * CARD_RATIO);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
-  const manual = (n: number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    slideTo((n + total) % total);
-  };
+  useEffect(() => {
+    if (hovered || autoplayPaused || total <= 1) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % total), AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [active, total, hovered, autoplayPaused]);
 
-  const handleScroll = () => {
-    const el = trackRef.current;
-    if (!el || !el.children[0]) return;
-    const width = (el.children[0] as HTMLElement).clientWidth + 16;
-    const n = Math.max(0, Math.min(total - 1, Math.round(el.scrollLeft / width)));
-    if (n !== active) setActive(n);
-  };
+  const goTo = (n: number) => setActive(((n % total) + total) % total);
 
-  const cardStyle = (i: number): React.CSSProperties => ({
-    flex: "0 0 74%",
-    height: 430,
-    scrollSnapAlign: "center",
-    overflow: "hidden",
-    background: "#F3E8D5",
-  });
+  const step = cardWidth + GAP;
 
   const cardAnimate = (i: number) => {
-    const isActive = i === active;
-    const tiltSign = i % 2 === 0 ? -1 : 1;
+    const offset = i - active;
+    const dist = Math.min(Math.abs(offset), 3);
     return {
-      rotate: isActive ? 0 : 2.4 * tiltSign,
-      scale: isActive ? 1 : 0.93,
-      boxShadow: isActive
+      rotateY: offset === 0 ? 0 : Math.sign(offset) * -22,
+      scale: offset === 0 ? 1 : 1 - dist * 0.08,
+      opacity: offset === 0 ? 1 : 1 - dist * 0.2,
+      boxShadow: offset === 0
         ? "0 26px 50px rgba(60,20,20,.34)"
         : "0 10px 22px rgba(60,20,20,.2)",
     };
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+    if (info.offset.x < -60 || info.velocity.x < -400) goTo(active + 1);
+    else if (info.offset.x > 60 || info.velocity.x > 400) goTo(active - 1);
   };
 
   return (
@@ -89,44 +88,62 @@ export default function Album({ photos, onOpenPhoto }: AlbumProps) {
 
       <div style={{ position: "relative", marginTop: 22 }}>
         <div
-          ref={trackRef}
-          onScroll={handleScroll}
+          ref={viewportRef}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           style={{
-            display: "flex",
-            gap: 16,
-            overflowX: "auto",
-            scrollSnapType: "x mandatory",
+            overflow: "hidden",
             padding: "16px 13% 26px",
-            scrollbarWidth: "none",
+            perspective: 1200,
           }}
         >
-          {photos.map((src, i) => (
-            <motion.div
-              key={src}
-              style={{ ...cardStyle(i), cursor: "zoom-in" }}
-              animate={cardAnimate(i)}
-              transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
-              onClick={() => onOpenPhoto(i)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={src}
-                alt="Ảnh cưới"
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 16%" }}
-              />
-            </motion.div>
-          ))}
+          <motion.div
+            style={{ display: "flex", gap: GAP, transformStyle: "preserve-3d", touchAction: "pan-y" }}
+            drag="x"
+            dragConstraints={{ left: -(total - 1) * step, right: 0 }}
+            dragElastic={0.15}
+            dragMomentum={false}
+            onDragEnd={handleDragEnd}
+            animate={{ x: -active * step }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {photos.map((src, i) => (
+              <motion.div
+                key={src}
+                style={{
+                  flex: `0 0 ${cardWidth}px`,
+                  height: 430,
+                  overflow: "hidden",
+                  background: "#F3E8D5",
+                  cursor: "zoom-in",
+                }}
+                animate={cardAnimate(i)}
+                transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+                onClick={() => onOpenPhoto(i)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt="Ảnh cưới"
+                  loading={Math.abs(i - active) <= 1 ? "eager" : "lazy"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 16%" }}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         <motion.div
           whileHover={{ background: "#7E1220" }}
           whileTap={{ scale: 0.9 }}
-          onClick={() => manual(active - 1)}
+          onClick={() => goTo(active - 1)}
+          role="button"
+          aria-label="Ảnh trước"
           style={{
             position: "absolute",
             left: 10,
             top: "50%",
-            transform: "translateY(-50%)",
+            y: "-50%",
             width: 40,
             height: 40,
             borderRadius: "50%",
@@ -146,12 +163,14 @@ export default function Album({ photos, onOpenPhoto }: AlbumProps) {
         <motion.div
           whileHover={{ background: "#7E1220" }}
           whileTap={{ scale: 0.9 }}
-          onClick={() => manual(active + 1)}
+          onClick={() => goTo(active + 1)}
+          role="button"
+          aria-label="Ảnh tiếp theo"
           style={{
             position: "absolute",
             right: 10,
             top: "50%",
-            transform: "translateY(-50%)",
+            y: "-50%",
             width: 40,
             height: 40,
             borderRadius: "50%",
@@ -170,20 +189,38 @@ export default function Album({ photos, onOpenPhoto }: AlbumProps) {
         </motion.div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 12 }}>
-        {Array.from({ length: total }).map((_, i) => (
-          <motion.div
-            key={i}
-            onClick={() => manual(i)}
-            animate={{
-              width: i === active ? 22 : 6,
-              background: i === active ? "#7E1220" : "rgba(126,18,32,.28)",
-            }}
-            transition={{ duration: 0.3 }}
-            style={{ height: 6, borderRadius: 3, cursor: "pointer" }}
-          />
-        ))}
-      </div>
+      {total > DOTS_MAX ? (
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 12,
+            fontFamily: "var(--font-be-vietnam), sans-serif",
+            fontSize: 12,
+            letterSpacing: ".12em",
+            color: "#8a7565",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {active + 1} / {total}
+        </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 12 }}>
+          {Array.from({ length: total }).map((_, i) => (
+            <motion.div
+              key={i}
+              onClick={() => goTo(i)}
+              role="button"
+              aria-label={`Xem ảnh ${i + 1}`}
+              animate={{
+                width: i === active ? 22 : 6,
+                background: i === active ? "#7E1220" : "rgba(126,18,32,.28)",
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ height: 6, borderRadius: 3, cursor: "pointer" }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

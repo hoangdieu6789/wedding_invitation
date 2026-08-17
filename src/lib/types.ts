@@ -20,6 +20,7 @@ export interface VenueBlock {
   lunarLabel: string;
   mapUrl: string;
   ctaLabel: string;
+  startIso: string;
 }
 
 export interface SideContent {
@@ -36,4 +37,5 @@ export interface SideContent {
   bankAccountNumber: string;
   weddingDateIso: string;
   albumImages: string[];
+  funClosingLine: string;
 }

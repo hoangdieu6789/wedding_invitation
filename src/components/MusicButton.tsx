@@ -24,6 +24,8 @@ export default function MusicButton() {
       <audio ref={audioRef} src="/nhac.mp3" loop />
       <motion.div
         onClick={toggle}
+        role="button"
+        aria-label={on ? "Tắt nhạc" : "Bật nhạc"}
         whileTap={{ scale: 0.9 }}
         animate={{ scale: on ? [1, 1.08, 1] : 1 }}
         transition={on ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}

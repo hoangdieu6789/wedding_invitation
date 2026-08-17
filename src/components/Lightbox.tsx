@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef } from "react";
 
 interface LightboxProps {
   photos: string[];
@@ -12,11 +13,40 @@ interface LightboxProps {
 export default function Lightbox({ photos, index, onClose, onIndexChange }: LightboxProps) {
   const open = index !== null;
   const active = index ?? 0;
+  const thumbStripRef = useRef<HTMLDivElement>(null);
+  const activeThumbRef = useRef<HTMLDivElement>(null);
+
+  const prev = () => onIndexChange((active - 1 + photos.length) % photos.length);
+  const next = () => onIndexChange((active + 1) % photos.length);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, active]);
+
+  useEffect(() => {
+    activeThumbRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [active]);
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+    if (info.offset.x < -60 || info.velocity.x < -400) next();
+    else if (info.offset.x > 60 || info.velocity.x > 400) prev();
+  };
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Xem ảnh cưới toàn màn hình"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
@@ -48,6 +78,8 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
             <motion.div
               whileTap={{ scale: 0.9 }}
               onClick={onClose}
+              role="button"
+              aria-label="Đóng xem ảnh"
               style={{
                 width: 34,
                 height: 34,
@@ -67,7 +99,9 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
           <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", gap: 10, padding: "0 12px" }}>
             <motion.div
               whileTap={{ scale: 0.9 }}
-              onClick={() => onIndexChange((active - 1 + photos.length) % photos.length)}
+              onClick={prev}
+              role="button"
+              aria-label="Ảnh trước"
               style={{
                 flex: "0 0 40px",
                 height: 40,
@@ -89,7 +123,11 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
                 <motion.img
                   key={photos[active]}
                   src={photos[active]}
-                  alt="Ảnh cưới"
+                  alt={`Ảnh cưới ${active + 1} / ${photos.length}`}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.6}
+                  onDragEnd={handleDragEnd}
                   initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.97 }}
@@ -99,13 +137,16 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
                     maxHeight: "100%",
                     objectFit: "contain",
                     boxShadow: "0 20px 60px rgba(0,0,0,.55)",
+                    touchAction: "pan-y",
                   }}
                 />
               </AnimatePresence>
             </div>
             <motion.div
               whileTap={{ scale: 0.9 }}
-              onClick={() => onIndexChange((active + 1) % photos.length)}
+              onClick={next}
+              role="button"
+              aria-label="Ảnh tiếp theo"
               style={{
                 flex: "0 0 40px",
                 height: 40,
@@ -123,24 +164,44 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
               </svg>
             </motion.div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "16px 18px 22px" }}>
+          <div
+            ref={thumbStripRef}
+            style={{
+              display: "flex",
+              gap: 8,
+              padding: "16px 18px 22px",
+              overflowX: "auto",
+              scrollSnapType: "x proximity",
+              scrollbarWidth: "none",
+            }}
+          >
             {photos.map((src, i) => (
               <motion.div
                 key={src}
+                ref={i === active ? activeThumbRef : undefined}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => onIndexChange(i)}
+                role="button"
+                aria-label={`Xem ảnh ${i + 1}`}
                 style={{
+                  flex: "0 0 54px",
                   width: 54,
                   height: 54,
                   overflow: "hidden",
                   cursor: "pointer",
+                  scrollSnapAlign: "center",
                   opacity: i === active ? 1 : 0.45,
                   outline: i === active ? "1px solid #E8C9A0" : "none",
                   outlineOffset: 2,
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="Ảnh cưới" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img
+                  src={src}
+                  alt=""
+                  loading={Math.abs(i - active) <= 3 ? "eager" : "lazy"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               </motion.div>
             ))}
           </div>
