@@ -28,9 +28,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://wedding-invitation-nu-gules.vercel.app"),
   title: "Thiệp cưới | Trần Mai & Hoàng Diệu",
   description: "Thiệp cưới điện tử",
-  icons: {
-    icon: "/img/mono-dm2.png",
-  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
