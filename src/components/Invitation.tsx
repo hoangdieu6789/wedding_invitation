@@ -75,6 +75,18 @@ function buildIcsHref(title: string, location: string, startIso: string): string
   return `data:text/calendar;charset=utf-8,${encodeURIComponent(lines.join("\r\n"))}`;
 }
 
+function buildGoogleCalendarHref(title: string, location: string, startIso: string): string {
+  const start = new Date(startIso);
+  const end = new Date(start.getTime() + 3 * 60 * 60 * 1000);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${toIcsDate(startIso)}/${toIcsDate(end.toISOString())}`,
+    location,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
   return (
     <div style={{ padding: "40px 32px 8px", textAlign: "center" }}>
@@ -144,13 +156,12 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
       >
         {venue.ctaLabel}
       </a>
-      <div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 14, marginTop: 12 }}>
         <a
-          href={buildIcsHref(venue.title, venue.addressLines.join(", "), venue.startIso)}
-          download="loi-moi-cuoi.ics"
+          href={buildGoogleCalendarHref(venue.title, venue.addressLines.join(", "), venue.startIso)}
+          target="_blank"
+          rel="noopener"
           style={{
-            display: "inline-block",
-            marginTop: 12,
             fontFamily: "var(--font-be-vietnam), sans-serif",
             fontSize: 11,
             letterSpacing: ".1em",
@@ -160,6 +171,20 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
           }}
         >
           + Thêm vào lịch
+        </a>
+        <a
+          href={buildIcsHref(venue.title, venue.addressLines.join(", "), venue.startIso)}
+          download="loi-moi-cuoi.ics"
+          style={{
+            fontFamily: "var(--font-be-vietnam), sans-serif",
+            fontSize: 11,
+            letterSpacing: ".1em",
+            color: "#a89684",
+            textDecoration: "underline",
+            textUnderlineOffset: 3,
+          }}
+        >
+          Lịch khác (Outlook, Apple...)
         </a>
       </div>
       {!primary && (

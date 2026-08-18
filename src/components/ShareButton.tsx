@@ -26,11 +26,8 @@ export default function ShareButton({ title, text }: ShareButtonProps) {
     }
   };
 
-  const zaloHref = () =>
-    `https://zalo.me/share?u=${encodeURIComponent(window.location.href)}&d=${encodeURIComponent(title)}`;
-
   return (
-    <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 18 }}>
+    <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
       <motion.div
         whileTap={{ scale: 0.95 }}
         onClick={share}
@@ -55,27 +52,7 @@ export default function ShareButton({ title, text }: ShareButtonProps) {
           <circle cx="18" cy="19" r="3" />
           <path d="M8.6 10.5 15.4 6.5M8.6 13.5 15.4 17.5" />
         </svg>
-        {copied ? "Đã sao chép!" : "Chia sẻ"}
-      </motion.div>
-      <motion.div
-        whileTap={{ scale: 0.95 }}
-        onClick={() => window.open(zaloHref(), "_blank", "noopener")}
-        role="button"
-        aria-label="Chia sẻ qua Zalo"
-        style={{
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          fontFamily: "var(--font-be-vietnam), sans-serif",
-          fontSize: 12,
-          letterSpacing: ".1em",
-          color: "#FCF6EA",
-          background: "#7E1220",
-          padding: "10px 16px",
-        }}
-      >
-        Zalo
+        {copied ? "Đã sao chép!" : "Chia sẻ thiệp cưới"}
       </motion.div>
     </div>
   );
