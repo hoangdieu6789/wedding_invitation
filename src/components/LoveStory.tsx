@@ -64,7 +64,12 @@ export default function LoveStory({ items }: { items: StoryItem[] }) {
                 {item.label}
               </div>
               <div style={{ fontSize: 16, fontStyle: "italic", color: "#6f5b4d", marginTop: 4, lineHeight: 1.6 }}>
-                {item.text}
+                {item.text.split("\n").map((line, li, arr) => (
+                  <span key={line}>
+                    {line}
+                    {li < arr.length - 1 && <br />}
+                  </span>
+                ))}
               </div>
             </div>
           </motion.div>

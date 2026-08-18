@@ -10,9 +10,10 @@ interface EnvelopeCoverProps {
   monogram: string;
   names: [string, string];
   guestName?: string;
+  onOpen?: () => void;
 }
 
-export default function EnvelopeCover({ heroImage, monogram, names, guestName }: EnvelopeCoverProps) {
+export default function EnvelopeCover({ heroImage, monogram, names, guestName, onOpen }: EnvelopeCoverProps) {
   const [phase, setPhase] = useState<Phase>("closed");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -21,6 +22,7 @@ export default function EnvelopeCover({ heroImage, monogram, names, guestName }:
   const open = () => {
     if (phase !== "closed") return;
     window.scrollTo(0, 0);
+    onOpen?.();
     setPhase("opening");
     timers.current.push(setTimeout(() => setPhase("rising"), 900));
     timers.current.push(setTimeout(() => setPhase("expanding"), 2300));

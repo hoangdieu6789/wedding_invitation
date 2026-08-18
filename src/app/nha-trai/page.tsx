@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
-    images: [{ url: SIDES.trai.albumImages[0], width: 1067, height: 1600 }],
+    images: [{ url: `${SIDES.trai.albumImages[0]}?v=2`, width: 1067, height: 1600 }],
   },
 };
 

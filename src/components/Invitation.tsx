@@ -187,6 +187,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
   const { wishes, sent, submit } = useWishes(content.storagePrefix, side);
   const albumPhotos = useAlbumPhotos(content.albumImages);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [envelopeOpened, setEnvelopeOpened] = useState(false);
   const heroImage = content.albumImages[0];
 
   const heroRef = useRef<HTMLDivElement>(null);
@@ -417,10 +418,16 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         </div>
         </Reveal>
 
-        <MusicButton />
+        <MusicButton autoPlay={envelopeOpened} />
       </div>
 
-      <EnvelopeCover heroImage={heroImage} monogram={content.monogram} names={content.heroNames} guestName={guestName} />
+      <EnvelopeCover
+        heroImage={heroImage}
+        monogram={content.monogram}
+        names={content.heroNames}
+        guestName={guestName}
+        onOpen={() => setEnvelopeOpened(true)}
+      />
     </div>
   );
 }

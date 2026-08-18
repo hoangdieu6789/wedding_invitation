@@ -1,11 +1,22 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function MusicButton() {
+export default function MusicButton({ autoPlay = false }: { autoPlay?: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [on, setOn] = useState(false);
+
+  useEffect(() => {
+    if (!autoPlay || on) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio
+      .play()
+      .then(() => setOn(true))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay]);
 
   const toggle = () => {
     const audio = audioRef.current;

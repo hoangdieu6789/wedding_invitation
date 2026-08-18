@@ -33,12 +33,23 @@ const leThanhHon = {
 
 const albumImages = ["/img/couple-1.jpg"];
 
-// TODO: thay bằng câu chuyện thật của 2 bạn trước khi công bố thiệp.
 export const LOVE_STORY = [
-  { label: "Gặp nhau", text: "Một ngày rất bình thường, hai người xa lạ vô tình quen nhau." },
-  { label: "Hẹn hò", text: "Những buổi hẹn hò đầu tiên, và cả hai nhận ra đây là người mình muốn đi cùng thật xa." },
-  { label: "Cầu hôn", text: "Một lời cầu hôn giản dị nhưng đủ khiến cả hai rưng rưng." },
-  { label: "Về chung nhà", text: "Và giờ đây, 20.09.2026 — ngày hai người chính thức nên duyên vợ chồng." },
+  {
+    label: "Khởi đầu từ một thoáng thu Hà Nội",
+    text: "Giữa tiết trời dịu mát của mùa thu Thủ đô, khi những con ngõ phố cổ xao động tiếng cười của nhóm bạn dạo phố, hai ánh mắt đã vô tình va vào nhau. Không kịch bản sắp đặt, chẳng hẹn trước một lời, cuộc gặp gỡ tình cờ ấy lại chính là mở đầu cho một định mệnh đẹp đẽ.",
+  },
+  {
+    label: "Từ thân quen đến trăm dặm hóa gần",
+    text: "Những câu chuyện bông đùa vu vơ thuở ban đầu dần hóa thành sợi dây gắn kết kỳ lạ. Từng cử chỉ quan tâm, từng thói quen nhỏ nhặt tự nhiên đến mức ngỡ như cả hai đã quen nhau tự bao giờ. Dẫu có những khoảng cách địa lý xa xôi hay bao thử thách của cuộc sống, lòng tin và sự thấu hiểu vẫn luôn giữ trọn ngọn lửa ấm, biến mọi cách trở thành động lực để bước về phía nhau.",
+  },
+  {
+    label: "Khoảnh khắc của sự chân thành",
+    text: "Không ánh nến lung linh nơi nhà hàng xa hoa, chẳng cần những lời hoa mỹ sáo rỗng. Bằng tất cả sự ấm áp, mộc mạc và chân thành nhất từ trái tim Hoàng Diệu, Trần Mai đã mỉm cười trao đi lời hẹn ước: \"Em đồng ý\". Giây phút ấy, mọi ồn ào ngoài kia nhường chỗ cho niềm xúc động trọn vẹn của hai tâm hồn tìm thấy bến đỗ bình yên.",
+  },
+  {
+    label: "Cái kết viên mãn và liên hôn thế kỷ",
+    text: "Ngày 20.09.2026 không chỉ là ngày tình yêu đơm hoa kết trái, mà còn chính thức đánh dấu màn liên hôn gia tộc rạng rỡ giữa Hoàng gia và Trần gia:\nDiệu – Mai gắn kết một nhà,\nHoàng – Trần hưng thịnh, muôn phần vinh hoa.",
+  },
 ];
 
 export const SIDES: Record<Side, SideContent> = {
