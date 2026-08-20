@@ -356,6 +356,8 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         <Reveal><Divider /></Reveal>
         <Reveal><Venue venue={content.leThanhHon} primary /></Reveal>
 
+        <Reveal><LoveStory items={LOVE_STORY} /></Reveal>
+
         <Reveal>
           <Album photos={albumPhotos} onOpenPhoto={setLightboxIndex} autoplayPaused={lightboxIndex !== null} />
         </Reveal>
@@ -366,8 +368,6 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
           onClose={() => setLightboxIndex(null)}
           onIndexChange={setLightboxIndex}
         />
-
-        <Reveal><LoveStory items={LOVE_STORY} /></Reveal>
 
         <Reveal><Countdown targetIso={content.weddingDateIso} /></Reveal>
 

@@ -61,7 +61,7 @@ export const SIDES: Record<Side, SideContent> = {
     dateRibbon: HERO_DATE_RIBBON,
     leThanhHon,
     tiecMung: {
-      title: "Tại tư gia nhà gái",
+      title: "Tư gia nhà gái",
       addressLines: ["Xóm 1 · Thôn Thanh Khiết", "Xã Giao Bình · Tỉnh Ninh Bình"],
       time: "17 giờ 00 phút",
       dateLabel: "THỨ BẢY · 19.09.2026",
@@ -86,7 +86,7 @@ export const SIDES: Record<Side, SideContent> = {
     dateRibbon: HERO_DATE_RIBBON,
     leThanhHon,
     tiecMung: {
-      title: "Tại tư gia nhà trai",
+      title: "Tư gia nhà trai",
       addressLines: ["Thôn Đức Cơ · Xã Đồng Châu", "Tỉnh Hưng Yên"],
       time: "17 giờ 00 phút",
       dateLabel: "THỨ BẢY · 19.09.2026",
