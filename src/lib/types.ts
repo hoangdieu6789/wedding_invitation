@@ -1,4 +1,4 @@
-export type Side = "gai" | "trai";
+export type Side = "gai" | "trai" | "huynh";
 
 export interface Wish {
   name: string;
@@ -25,7 +25,7 @@ export interface VenueBlock {
 
 export interface SideContent {
   key: Side;
-  storagePrefix: "tng" | "tnt";
+  storagePrefix: "tng" | "tnt" | "tnh";
   monogram: string;
   heroNames: [string, string];
   dateRibbon: string;
@@ -38,4 +38,8 @@ export interface SideContent {
   weddingDateIso: string;
   albumImages: string[];
   funClosingLine: string;
+  /** Overrides for guest-of-parents wording; falls back to the default (peer) wording when omitted. */
+  greetingEyebrow?: string;
+  greetingLine?: string;
+  shareText?: string;
 }

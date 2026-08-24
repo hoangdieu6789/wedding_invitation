@@ -9,13 +9,14 @@ interface RsvpPayload {
   attend: boolean;
   companions: number;
   text: string;
-  side: "gai" | "trai";
+  side: "gai" | "trai" | "huynh";
   locked: boolean;
 }
 
 const SIDE_TAB: Record<RsvpPayload["side"], string> = {
   gai: process.env.GOOGLE_SHEET_TAB_GAI || "NhaGai",
   trai: process.env.GOOGLE_SHEET_TAB_TRAI || "NhaTrai",
+  huynh: process.env.GOOGLE_SHEET_TAB_HUYNH || "PhuHuynh",
 };
 
 function isValidPayload(value: unknown): value is RsvpPayload {
@@ -27,7 +28,7 @@ function isValidPayload(value: unknown): value is RsvpPayload {
     typeof v.companions === "number" &&
     Number.isFinite(v.companions) &&
     typeof v.text === "string" &&
-    (v.side === "gai" || v.side === "trai") &&
+    (v.side === "gai" || v.side === "trai" || v.side === "huynh") &&
     typeof v.locked === "boolean"
   );
 }
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const side = request.nextUrl.searchParams.get("side");
-  if (side !== "gai" && side !== "trai") {
+  if (side !== "gai" && side !== "trai" && side !== "huynh") {
     return NextResponse.json({ ok: false, error: "invalid side" }, { status: 400 });
   }
 

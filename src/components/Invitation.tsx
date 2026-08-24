@@ -291,7 +291,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
             />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 10, letterSpacing: ".36em", color: "#A6303C", textTransform: "uppercase" }}>
               <span style={{ width: 20, height: 1, background: "rgba(166,48,60,.45)" }} />
-              <span>Thân mời</span>
+              <span>{content.greetingEyebrow ?? "Thân mời"}</span>
               <span style={{ width: 20, height: 1, background: "rgba(166,48,60,.45)" }} />
             </div>
             {guestName && (
@@ -300,7 +300,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
               </div>
             )}
             <div style={{ fontFamily: "var(--font-cormorant), serif", fontStyle: "italic", fontSize: 19, color: "#8a7565", marginTop: 14 }}>
-              tới chung vui cùng lễ cưới của chúng tôi
+              {content.greetingLine ?? "tới chung vui cùng lễ cưới của chúng tôi"}
             </div>
             <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 54, lineHeight: 1.05, color: "#7E1220", fontWeight: 500, marginTop: 16 }}>
               {content.heroNames[0]}
@@ -394,7 +394,10 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         </div>
         </Reveal>
 
-        <ShareButton title={`Thiệp cưới ${content.heroNames.join(" & ")}`} text="Trân trọng kính mời bạn tới chung vui cùng chúng tôi!" />
+        <ShareButton
+          title={`Thiệp cưới ${content.heroNames.join(" & ")}`}
+          text={content.shareText ?? "Trân trọng kính mời bạn tới chung vui cùng chúng tôi!"}
+        />
 
         <Reveal><Divider /></Reveal>
         {/* Thank you */}
