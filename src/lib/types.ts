@@ -1,5 +1,11 @@
 export type Side = "gai" | "trai" | "huynh";
 
+export type Locale = "vi" | "en";
+
+export function resolveLocale(lang?: string): Locale {
+  return lang === "en" ? "en" : "vi";
+}
+
 export interface Wish {
   name: string;
   text: string;

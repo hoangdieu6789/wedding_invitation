@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
+import { useT } from "@/lib/i18n";
 import { Side, Wish } from "@/lib/types";
 
 interface RsvpCardProps {
@@ -26,6 +27,7 @@ const srOnly: React.CSSProperties = {
 };
 
 export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardProps) {
+  const t = useT();
   const [attend, setAttend] = useState(true);
   const [companions, setCompanions] = useState(0);
   const [editing, setEditing] = useState(false);
@@ -33,7 +35,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
   const msgRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = () => {
-    const name = nameRef.current?.value.trim() || "Quý khách";
+    const name = nameRef.current?.value.trim() || t.defaultGuestName;
     const text = msgRef.current?.value.trim() || "";
     onSubmit(text ? { name, text } : null);
     setEditing(false);
@@ -74,10 +76,10 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
     >
       <div style={{ textAlign: "center" }}>
         <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 32, color: "#7E1220", fontWeight: 500 }}>
-          Xác nhận tham dự
+          {t.rsvpTitle}
         </div>
         <div style={{ fontSize: 16, fontStyle: "italic", color: "#8a7565", marginTop: 4, lineHeight: 1.6 }}>
-          Sự hiện diện của Quý khách là niềm vinh hạnh cho gia đình chúng tôi
+          {t.rsvpSubtitle}
         </div>
       </div>
 
@@ -90,13 +92,13 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
             exit={{ opacity: 0 }}
             style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 22 }}
           >
-            <label htmlFor="rsvp-name" style={srOnly}>Tên của Quý khách</label>
+            <label htmlFor="rsvp-name" style={srOnly}>{t.namePlaceholder}</label>
             <input
               id="rsvp-name"
               ref={nameRef}
               defaultValue={guestName}
               readOnly={!!guestName}
-              placeholder="Tên của Quý khách"
+              placeholder={t.namePlaceholder}
               style={{
                 fontFamily: "var(--font-be-vietnam), sans-serif",
                 fontSize: 14,
@@ -115,20 +117,20 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                 onClick={() => setAttend(true)}
                 role="button"
                 aria-pressed={attend}
-                aria-label="Xác nhận sẽ tham dự"
+                aria-label={t.ariaAttendYes}
                 style={toggleBtnStyle(attend)}
               >
-                Có, tôi sẽ đến
+                {t.attendYes}
               </motion.div>
               <motion.div
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setAttend(false)}
                 role="button"
                 aria-pressed={!attend}
-                aria-label="Xin phép vắng mặt"
+                aria-label={t.ariaAttendNo}
                 style={toggleBtnStyle(!attend)}
               >
-                Xin phép vắng mặt
+                {t.attendNo}
               </motion.div>
             </div>
             {attend && (
@@ -149,14 +151,14 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                     color: "#4A3B35",
                   }}
                 >
-                  Tệp đính kèm
+                  {t.companionsLabel}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <motion.div
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setCompanions((c) => Math.max(0, c - 1))}
                     role="button"
-                    aria-label="Giảm số người đi cùng"
+                    aria-label={t.ariaDecreaseCompanions}
                     style={{
                       cursor: "pointer",
                       width: 28,
@@ -189,7 +191,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setCompanions((c) => Math.min(MAX_COMPANIONS, c + 1))}
                     role="button"
-                    aria-label="Tăng số người đi cùng"
+                    aria-label={t.ariaIncreaseCompanions}
                     style={{
                       cursor: "pointer",
                       width: 28,
@@ -208,12 +210,12 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                 </div>
               </div>
             )}
-            <label htmlFor="rsvp-message" style={srOnly}>Lời chúc gửi tới cô dâu chú rể</label>
+            <label htmlFor="rsvp-message" style={srOnly}>{t.wishLabel}</label>
             <textarea
               id="rsvp-message"
               ref={msgRef}
               rows={3}
-              placeholder="Lời chúc gửi tới cô dâu chú rể"
+              placeholder={t.wishLabel}
               style={{
                 fontFamily: "var(--font-be-vietnam), sans-serif",
                 fontSize: 14,
@@ -230,7 +232,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
               whileHover={{ background: "#A6303C" }}
               onClick={handleSubmit}
               role="button"
-              aria-label="Gửi xác nhận tham dự"
+              aria-label={t.ariaSubmit}
               style={{
                 cursor: "pointer",
                 textAlign: "center",
@@ -247,7 +249,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                 justifyContent: "center",
               }}
             >
-              Gửi xác nhận
+              {t.submitLabel}
             </motion.div>
           </motion.div>
         ) : (
@@ -259,16 +261,16 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
             style={{ marginTop: 22, textAlign: "center" }}
           >
             <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 30, color: "#7E1220" }}>
-              Cảm ơn Quý khách!
+              {t.thanksTitle}
             </div>
             <div style={{ fontSize: 16, fontStyle: "italic", color: "#8a7565", marginTop: 6 }}>
-              Gia đình chúng tôi đã nhận được xác nhận của Quý khách.
+              {t.thanksDesc}
             </div>
             <motion.div
               whileTap={{ scale: 0.97 }}
               onClick={() => setEditing(true)}
               role="button"
-              aria-label="Sửa lại xác nhận tham dự"
+              aria-label={t.ariaEdit}
               style={{
                 display: "inline-block",
                 marginTop: 14,
@@ -281,7 +283,7 @@ export default function RsvpCard({ sent, side, guestName, onSubmit }: RsvpCardPr
                 textUnderlineOffset: 3,
               }}
             >
-              Chỉnh sửa lại xác nhận
+              {t.editLabel}
             </motion.div>
           </motion.div>
         )}

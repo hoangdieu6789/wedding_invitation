@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 interface AlbumProps {
   photos: string[];
@@ -15,6 +16,7 @@ const DOTS_MAX = 10;
 const AUTOPLAY_MS = 4500;
 
 export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: AlbumProps) {
+  const t = useT();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(0);
   const [active, setActive] = useState(0);
@@ -71,7 +73,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
           textTransform: "uppercase",
         }}
       >
-        Album cưới
+        {t.albumEyebrow}
       </div>
       <div
         style={{
@@ -83,7 +85,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
           marginTop: 6,
         }}
       >
-        Khoảnh khắc của chúng tôi
+        {t.albumTitle}
       </div>
 
       <div style={{ position: "relative", marginTop: 22 }}>
@@ -124,7 +126,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt="Ảnh cưới"
+                  alt={t.photoAlt}
                   loading={Math.abs(i - active) <= 1 ? "eager" : "lazy"}
                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 16%" }}
                 />
@@ -138,7 +140,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
           whileTap={{ scale: 0.9 }}
           onClick={() => goTo(active - 1)}
           role="button"
-          aria-label="Ảnh trước"
+          aria-label={t.prevPhoto}
           style={{
             position: "absolute",
             left: 10,
@@ -165,7 +167,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
           whileTap={{ scale: 0.9 }}
           onClick={() => goTo(active + 1)}
           role="button"
-          aria-label="Ảnh tiếp theo"
+          aria-label={t.nextPhoto}
           style={{
             position: "absolute",
             right: 10,
@@ -210,7 +212,7 @@ export default function Album({ photos, onOpenPhoto, autoplayPaused = false }: A
               key={i}
               onClick={() => goTo(i)}
               role="button"
-              aria-label={`Xem ảnh ${i + 1}`}
+              aria-label={t.viewPhoto(i + 1)}
               animate={{
                 width: i === active ? 22 : 6,
                 background: i === active ? "#7E1220" : "rgba(126,18,32,.28)",

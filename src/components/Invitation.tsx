@@ -2,9 +2,10 @@
 
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
-import { LOVE_STORY, SIDES } from "@/lib/content";
+import { getLoveStory, getSides } from "@/lib/content";
 import { useAlbumPhotos, useWishes } from "@/lib/hooks";
-import { Side, VenueBlock } from "@/lib/types";
+import { getUiText, LanguageContext, useT } from "@/lib/i18n";
+import { Locale, Side, VenueBlock } from "@/lib/types";
 import Album from "./Album";
 import Countdown from "./Countdown";
 import EnvelopeCover from "./EnvelopeCover";
@@ -19,6 +20,7 @@ import ShareButton from "./ShareButton";
 import WishesBook from "./WishesBook";
 
 function QrImage({ src, size }: { src: string; size: number }) {
+  const t = useT();
   const [broken, setBroken] = useState(false);
 
   if (broken) {
@@ -38,7 +40,7 @@ function QrImage({ src, size }: { src: string; size: number }) {
           background: "#F3E8D5",
         }}
       >
-        Chưa có ảnh QR
+        {t.qrMissing}
       </div>
     );
   }
@@ -47,7 +49,7 @@ function QrImage({ src, size }: { src: string; size: number }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt="QR chuyển khoản mừng cưới"
+      alt={t.qrAlt}
       onError={() => setBroken(true)}
       style={{ width: size, height: size, objectFit: "cover" }}
     />
@@ -88,12 +90,13 @@ function buildGoogleCalendarHref(title: string, location: string, startIso: stri
 }
 
 function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
+  const t = useT();
   return (
     <div style={{ padding: "40px 32px 8px", textAlign: "center" }}>
       {primary ? (
         <>
           <div style={{ fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 10, letterSpacing: ".32em", color: "#A6303C", textTransform: "uppercase" }}>
-            Lễ thành hôn được tổ chức tại
+            {t.ceremonyAt}
           </div>
           <div style={{ fontFamily: "var(--font-cormorant), serif", fontSize: 27, fontWeight: 500, letterSpacing: ".08em", color: "#7E1220", marginTop: 12 }}>
             {venue.title}
@@ -102,7 +105,7 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
       ) : (
         <>
           <div style={{ fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 10, letterSpacing: ".32em", color: "#A6303C", textTransform: "uppercase" }}>
-            Tiệc mừng được tổ chức tại
+            {t.receptionAt}
           </div>
           <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 34, color: "#7E1220", fontWeight: 500, marginTop: 12 }}>
             {venue.title}
@@ -118,7 +121,7 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
         ))}
       </div>
       <div style={{ marginTop: 18, fontSize: 17, color: "#4A3B35", fontVariantNumeric: "lining-nums tabular-nums" }}>
-        Vào lúc <strong style={{ fontWeight: 500 }}>{venue.time}</strong>
+        {t.at} <strong style={{ fontWeight: 500 }}>{venue.time}</strong>
       </div>
       <div style={{ fontFamily: "var(--font-cormorant), serif", fontSize: 23, fontWeight: 600, letterSpacing: ".06em", color: "#7E1220", marginTop: 4, fontVariantNumeric: "lining-nums tabular-nums" }}>
         {venue.dateLabel}
@@ -170,11 +173,11 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
             textUnderlineOffset: 3,
           }}
         >
-          + Thêm vào lịch
+          {t.addToCalendar}
         </a>
         <a
           href={buildIcsHref(venue.title, venue.addressLines.join(", "), venue.startIso)}
-          download="loi-moi-cuoi.ics"
+          download={t.icsFilename}
           style={{
             fontFamily: "var(--font-be-vietnam), sans-serif",
             fontSize: 11,
@@ -184,11 +187,11 @@ function Venue({ venue, primary }: { venue: VenueBlock; primary: boolean }) {
             textUnderlineOffset: 3,
           }}
         >
-          Lịch khác (Outlook, Apple...)
+          {t.otherCalendar}
         </a>
       </div>
       {!primary && (
-        <div style={{ fontSize: 16, fontStyle: "italic", color: "#8a7565", marginTop: 20 }}>Rất hân hạnh được đón tiếp!</div>
+        <div style={{ fontSize: 16, fontStyle: "italic", color: "#8a7565", marginTop: 20 }}>{t.honoredToWelcome}</div>
       )}
     </div>
   );
@@ -207,8 +210,17 @@ function Divider() {
   );
 }
 
-export default function Invitation({ side, guestName }: { side: Side; guestName?: string }) {
-  const content = SIDES[side];
+export default function Invitation({
+  side,
+  guestName,
+  lang = "vi",
+}: {
+  side: Side;
+  guestName?: string;
+  lang?: Locale;
+}) {
+  const content = getSides(lang)[side];
+  const t = getUiText(lang);
   const { wishes, sent, submit } = useWishes(content.storagePrefix, side);
   const albumPhotos = useAlbumPhotos(content.albumImages);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -220,6 +232,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
   const heroY = useTransform(heroProgress, [0, 1], ["0%", "18%"]);
 
   return (
+    <LanguageContext.Provider value={lang}>
     <div
       style={{
         minHeight: "100vh",
@@ -291,7 +304,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
             />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, fontFamily: "var(--font-be-vietnam), sans-serif", fontSize: 10, letterSpacing: ".36em", color: "#A6303C", textTransform: "uppercase" }}>
               <span style={{ width: 20, height: 1, background: "rgba(166,48,60,.45)" }} />
-              <span>{content.greetingEyebrow ?? "Thân mời"}</span>
+              <span>{content.greetingEyebrow ?? t.defaultEyebrow}</span>
               <span style={{ width: 20, height: 1, background: "rgba(166,48,60,.45)" }} />
             </div>
             {guestName && (
@@ -300,7 +313,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
               </div>
             )}
             <div style={{ fontFamily: "var(--font-cormorant), serif", fontStyle: "italic", fontSize: 19, color: "#8a7565", marginTop: 14 }}>
-              {content.greetingLine ?? "tới chung vui cùng lễ cưới của chúng tôi"}
+              {content.greetingLine ?? t.defaultGreetingLine}
             </div>
             <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 54, lineHeight: 1.05, color: "#7E1220", fontWeight: 500, marginTop: 16 }}>
               {content.heroNames[0]}
@@ -335,9 +348,9 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
                 {p.title}
               </div>
               <div style={{ marginTop: 10, fontSize: 17, fontWeight: 500, color: "#4A3B35", lineHeight: 1.7 }}>
-                Bố: {p.father}
+                {t.father}: {p.father}
                 <br />
-                Mẹ: {p.mother}
+                {t.mother}: {p.mother}
               </div>
               <div style={{ marginTop: 6, fontSize: 15, fontStyle: "italic", color: "#8a7565", lineHeight: 1.6 }}>
                 {p.addressLines.map((line, li) => (
@@ -356,7 +369,7 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         <Reveal><Divider /></Reveal>
         <Reveal><Venue venue={content.leThanhHon} primary /></Reveal>
 
-        <Reveal><LoveStory items={LOVE_STORY} /></Reveal>
+        <Reveal><LoveStory items={getLoveStory(lang)} /></Reveal>
 
         <Reveal>
           <Album photos={albumPhotos} onOpenPhoto={setLightboxIndex} autoplayPaused={lightboxIndex !== null} />
@@ -377,11 +390,12 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         <Reveal><WishesBook wishes={wishes} /></Reveal>
 
         {/* Mừng cưới */}
+        {side !== "huynh" && (
         <Reveal>
         <div style={{ margin: "44px 26px 0", textAlign: "center", border: "1px solid rgba(126,18,32,.2)", padding: "28px 22px", background: "rgba(255,255,255,.5)" }}>
-          <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 32, color: "#7E1220", fontWeight: 500 }}>Hộp mừng cưới</div>
+          <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 32, color: "#7E1220", fontWeight: 500 }}>{t.giftBoxTitle}</div>
           <div style={{ fontSize: 16, fontStyle: "italic", color: "#8a7565", marginTop: 4, lineHeight: 1.6 }}>
-            Nếu không thể tới chung vui, Quý khách có thể gửi lời chúc qua đây
+            {t.giftBoxDesc}
           </div>
           <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
             <QrImage src={`/img/qr-${content.storagePrefix}.png`} size={190} />
@@ -393,17 +407,18 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
           </div>
         </div>
         </Reveal>
+        )}
 
         <ShareButton
-          title={`Thiệp cưới ${content.heroNames.join(" & ")}`}
-          text={content.shareText ?? "Trân trọng kính mời bạn tới chung vui cùng chúng tôi!"}
+          title={`${t.shareTitlePrefix} ${content.heroNames.join(" & ")}`}
+          text={content.shareText ?? t.defaultShareText}
         />
 
         <Reveal><Divider /></Reveal>
         {/* Thank you */}
         <Reveal>
         <div style={{ padding: "52px 26px 60px", textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 44, color: "#7E1220", fontWeight: 500 }}>Thank You!</div>
+          <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 44, color: "#7E1220", fontWeight: 500 }}>{t.thankYouTitle}</div>
           <div
             style={{
               fontSize: 17,
@@ -457,5 +472,6 @@ export default function Invitation({ side, guestName }: { side: Side; guestName?
         onOpen={() => setEnvelopeOpened(true)}
       />
     </div>
+    </LanguageContext.Provider>
   );
 }

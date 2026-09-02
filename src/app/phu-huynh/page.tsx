@@ -1,25 +1,42 @@
 import { Metadata } from "next";
 import Invitation from "@/components/Invitation";
-import { SIDES } from "@/lib/content";
+import { getSides } from "@/lib/content";
+import { resolveLocale } from "@/lib/types";
 
-const title = `Thiệp mời phụ huynh | ${SIDES.huynh.heroNames.join(" & ")}`;
-const description = "Thiệp mời cưới điện tử dành cho phụ huynh — thông tin lễ thành hôn, tiệc mừng, RSVP và lời chúc.";
+type PageSearchParams = { guestName?: string; lang?: string };
 
-export const metadata: Metadata = {
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<PageSearchParams>;
+}): Promise<Metadata> {
+  const locale = resolveLocale((await searchParams).lang);
+  const content = getSides(locale).huynh;
+  const title =
+    locale === "en"
+      ? `Parents' Wedding Invitation | ${content.heroNames.join(" & ")}`
+      : `Thiệp mời phụ huynh | ${content.heroNames.join(" & ")}`;
+  const description =
+    locale === "en"
+      ? "Digital wedding invitation for parents — ceremony, reception, RSVP, and guest wishes."
+      : "Thiệp mời cưới điện tử dành cho phụ huynh — thông tin lễ thành hôn, tiệc mừng, RSVP và lời chúc.";
+
+  return {
     title,
     description,
-    images: [{ url: `${SIDES.huynh.albumImages[0]}?v=2`, width: 1067, height: 1600 }],
-  },
-};
+    openGraph: {
+      title,
+      description,
+      images: [{ url: `${content.albumImages[0]}?v=2`, width: 1067, height: 1600 }],
+    },
+  };
+}
 
 export default async function PhuHuynhPage({
   searchParams,
 }: {
-  searchParams: Promise<{ guestName?: string }>;
+  searchParams: Promise<PageSearchParams>;
 }) {
-  const { guestName } = await searchParams;
-  return <Invitation side="huynh" guestName={guestName} />;
+  const { guestName, lang } = await searchParams;
+  return <Invitation side="huynh" guestName={guestName} lang={resolveLocale(lang)} />;
 }

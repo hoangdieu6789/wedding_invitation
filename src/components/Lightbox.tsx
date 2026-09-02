@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
+import { useT } from "@/lib/i18n";
 
 interface LightboxProps {
   photos: string[];
@@ -11,6 +12,7 @@ interface LightboxProps {
 }
 
 export default function Lightbox({ photos, index, onClose, onIndexChange }: LightboxProps) {
+  const t = useT();
   const open = index !== null;
   const active = index ?? 0;
   const thumbStripRef = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
         <motion.div
           role="dialog"
           aria-modal="true"
-          aria-label="Xem ảnh cưới toàn màn hình"
+          aria-label={t.lightboxAria}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
@@ -79,7 +81,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
               whileTap={{ scale: 0.9 }}
               onClick={onClose}
               role="button"
-              aria-label="Đóng xem ảnh"
+              aria-label={t.closeLightbox}
               style={{
                 width: 34,
                 height: 34,
@@ -101,7 +103,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
               whileTap={{ scale: 0.9 }}
               onClick={prev}
               role="button"
-              aria-label="Ảnh trước"
+              aria-label={t.prevPhoto}
               style={{
                 flex: "0 0 40px",
                 height: 40,
@@ -123,7 +125,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
                 <motion.img
                   key={photos[active]}
                   src={photos[active]}
-                  alt={`Ảnh cưới ${active + 1} / ${photos.length}`}
+                  alt={t.photoAltIndexed(active + 1, photos.length)}
                   drag="x"
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.6}
@@ -146,7 +148,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
               whileTap={{ scale: 0.9 }}
               onClick={next}
               role="button"
-              aria-label="Ảnh tiếp theo"
+              aria-label={t.nextPhoto}
               style={{
                 flex: "0 0 40px",
                 height: 40,
@@ -182,7 +184,7 @@ export default function Lightbox({ photos, index, onClose, onIndexChange }: Ligh
                 whileTap={{ scale: 0.92 }}
                 onClick={() => onIndexChange(i)}
                 role="button"
-                aria-label={`Xem ảnh ${i + 1}`}
+                aria-label={t.viewPhoto(i + 1)}
                 style={{
                   flex: "0 0 54px",
                   width: 54,

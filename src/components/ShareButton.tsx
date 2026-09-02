@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useState } from "react";
+import { useT } from "@/lib/i18n";
 
 interface ShareButtonProps {
   title: string;
@@ -9,6 +10,7 @@ interface ShareButtonProps {
 }
 
 export default function ShareButton({ title, text }: ShareButtonProps) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   const share = async () => {
@@ -32,7 +34,7 @@ export default function ShareButton({ title, text }: ShareButtonProps) {
         whileTap={{ scale: 0.95 }}
         onClick={share}
         role="button"
-        aria-label="Chia sẻ thiệp cưới"
+        aria-label={t.shareAria}
         style={{
           cursor: "pointer",
           display: "flex",
@@ -52,7 +54,7 @@ export default function ShareButton({ title, text }: ShareButtonProps) {
           <circle cx="18" cy="19" r="3" />
           <path d="M8.6 10.5 15.4 6.5M8.6 13.5 15.4 17.5" />
         </svg>
-        {copied ? "Đã sao chép!" : "Chia sẻ thiệp cưới"}
+        {copied ? t.copied : t.shareLabel}
       </motion.div>
     </div>
   );

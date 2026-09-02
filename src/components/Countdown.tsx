@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useCountdown } from "@/lib/hooks";
+import { useT } from "@/lib/i18n";
 
 function Unit({ value, label }: { value: string; label: string }) {
   return (
@@ -55,6 +56,7 @@ function Unit({ value, label }: { value: string; label: string }) {
 }
 
 export default function Countdown({ targetIso }: { targetIso: string }) {
+  const t = useT();
   const cd = useCountdown(targetIso);
 
   return (
@@ -67,7 +69,7 @@ export default function Countdown({ targetIso }: { targetIso: string }) {
           color: "#8a7565",
         }}
       >
-        Còn lại
+        {t.countdownLabel}
       </div>
       <div
         style={{
@@ -77,10 +79,10 @@ export default function Countdown({ targetIso }: { targetIso: string }) {
           marginTop: 14,
         }}
       >
-        <Unit value={cd.days} label="Ngày" />
-        <Unit value={cd.hours} label="Giờ" />
-        <Unit value={cd.mins} label="Phút" />
-        <Unit value={cd.secs} label="Giây" />
+        <Unit value={cd.days} label={t.days} />
+        <Unit value={cd.hours} label={t.hours} />
+        <Unit value={cd.mins} label={t.mins} />
+        <Unit value={cd.secs} label={t.secs} />
       </div>
     </div>
   );

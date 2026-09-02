@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 type Phase = "closed" | "opening" | "rising" | "expanding" | "done";
 
@@ -14,6 +15,7 @@ interface EnvelopeCoverProps {
 }
 
 export default function EnvelopeCover({ heroImage, monogram, names, guestName, onOpen }: EnvelopeCoverProps) {
+  const t = useT();
   const [phase, setPhase] = useState<Phase>("closed");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -372,7 +374,7 @@ export default function EnvelopeCover({ heroImage, monogram, names, guestName, o
                   marginBottom: guestName ? 4 : 14,
                 }}
               >
-                Trân trọng kính mời
+                {t.envelopeInviteLine}
               </div>
               {guestName && (
                 <div style={{ fontFamily: "var(--font-dancing), cursive", fontSize: 20, color: "#A6303C", marginBottom: 2 }}>
@@ -402,7 +404,7 @@ export default function EnvelopeCover({ heroImage, monogram, names, guestName, o
               textTransform: "uppercase",
             }}
           >
-            Chạm để mở thiệp
+            {t.tapToOpen}
           </motion.div>
         </div>
       </motion.div>

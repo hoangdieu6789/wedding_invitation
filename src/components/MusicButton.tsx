@@ -2,8 +2,10 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 export default function MusicButton({ autoPlay = false }: { autoPlay?: boolean }) {
+  const t = useT();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [on, setOn] = useState(false);
 
@@ -36,11 +38,11 @@ export default function MusicButton({ autoPlay = false }: { autoPlay?: boolean }
       <motion.div
         onClick={toggle}
         role="button"
-        aria-label={on ? "Tắt nhạc" : "Bật nhạc"}
+        aria-label={on ? t.turnOffMusic : t.turnOnMusic}
         whileTap={{ scale: 0.9 }}
         animate={{ scale: on ? [1, 1.08, 1] : 1 }}
         transition={on ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-        title={on ? "Tắt nhạc" : "Bật nhạc"}
+        title={on ? t.turnOffMusic : t.turnOnMusic}
         style={{
           position: "fixed",
           right: 18,

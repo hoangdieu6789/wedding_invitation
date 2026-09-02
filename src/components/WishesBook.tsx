@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 import { Wish } from "@/lib/types";
 
 const AUTOPLAY_MS = 4200;
@@ -16,6 +17,7 @@ function HeartIcon() {
 }
 
 export default function WishesBook({ wishes }: { wishes: Wish[] }) {
+  const t = useT();
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
   const total = wishes.length;
@@ -46,7 +48,7 @@ export default function WishesBook({ wishes }: { wishes: Wish[] }) {
           textTransform: "uppercase",
         }}
       >
-        Sổ lưu bút
+        {t.wishesBookTitle}
       </div>
 
       {total > 0 ? (
@@ -82,7 +84,7 @@ export default function WishesBook({ wishes }: { wishes: Wish[] }) {
         </div>
       ) : (
         <div style={{ marginTop: 14, textAlign: "center", fontSize: 16, fontStyle: "italic", color: "#a89684" }}>
-          Lời chúc của Quý khách sẽ được lưu lại tại đây.
+          {t.wishesEmpty}
         </div>
       )}
 
@@ -108,7 +110,7 @@ export default function WishesBook({ wishes }: { wishes: Wish[] }) {
                 key={i}
                 onClick={() => setActive(i)}
                 role="button"
-                aria-label={`Xem lời chúc ${i + 1}`}
+                aria-label={t.viewWish(i + 1)}
                 animate={{
                   width: i === active ? 18 : 6,
                   background: i === active ? "#7E1220" : "rgba(126,18,32,.28)",

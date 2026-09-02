@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useT } from "@/lib/i18n";
 
 interface StoryItem {
   label: string;
@@ -8,6 +9,7 @@ interface StoryItem {
 }
 
 export default function LoveStory({ items }: { items: StoryItem[] }) {
+  const t = useT();
   return (
     <div style={{ padding: "40px 26px 0" }}>
       <div
@@ -20,7 +22,7 @@ export default function LoveStory({ items }: { items: StoryItem[] }) {
           textTransform: "uppercase",
         }}
       >
-        Câu chuyện của chúng tôi
+        {t.loveStoryEyebrow}
       </div>
       <div
         style={{
@@ -32,7 +34,7 @@ export default function LoveStory({ items }: { items: StoryItem[] }) {
           marginTop: 6,
         }}
       >
-        Hành trình yêu thương
+        {t.loveStoryTitle}
       </div>
 
       <div style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 0 }}>

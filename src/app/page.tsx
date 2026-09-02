@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { getUiText } from "@/lib/i18n-text";
+import { resolveLocale } from "@/lib/types";
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const locale = resolveLocale((await searchParams).lang);
+  const t = getUiText(locale);
+  const langSuffix = locale === "en" ? "?lang=en" : "";
+
   return (
     <main
       style={{
@@ -19,7 +29,7 @@ export default function Home() {
       </h1>
       <div style={{ display: "flex", gap: 16 }}>
         <Link
-          href="/nha-gai"
+          href={`/nha-gai${langSuffix}`}
           style={{
             border: "1px solid rgba(255,244,232,.4)",
             padding: "12px 22px",
@@ -30,10 +40,10 @@ export default function Home() {
             color: "#FCF6EA",
           }}
         >
-          Thiệp nhà gái
+          {t.linkBrideInvite}
         </Link>
         <Link
-          href="/nha-trai"
+          href={`/nha-trai${langSuffix}`}
           style={{
             border: "1px solid rgba(255,244,232,.4)",
             padding: "12px 22px",
@@ -44,7 +54,7 @@ export default function Home() {
             color: "#FCF6EA",
           }}
         >
-          Thiệp nhà trai
+          {t.linkGroomInvite}
         </Link>
       </div>
     </main>
